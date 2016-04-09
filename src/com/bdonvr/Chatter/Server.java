@@ -15,27 +15,15 @@ public class Server {
 	private static int uniqueId;
 	// an ArrayList to keep the list of the Client
 	private ArrayList<ClientThread> al;
-	// if I am in a GUI
-	private ServerGUI sg;
 	// to display time
 	private SimpleDateFormat sdf;
 	// the port number to listen for connection
 	private int port;
 	// the boolean that will be turned of to stop the server
 	private boolean keepGoing;
+	public static String serverName;
 	
-
-	/*
-	 *  server constructor that receive the port to listen to for connection as parameter
-	 *  in console
-	 */
-	public Server(int port) {
-		this(port, null);
-	}
-	
-	public Server(int port, ServerGUI sg) {
-		// GUI or not
-		this.sg = sg;
+	public Server(int port, String serverName) {
 		// the port
 		this.port = port;
 		// to display hh:mm:ss
@@ -46,9 +34,6 @@ public class Server {
 	
 	public static class DiscoveryThread implements Runnable {
 
-		  @Override
-		  public void run() {
-		  }
 
 		  public static DiscoveryThread getInstance() {
 		    return DiscoveryThreadHolder.INSTANCE;
@@ -59,7 +44,7 @@ public class Server {
 		    private static final DiscoveryThread INSTANCE = new DiscoveryThread();
 		  }
 
-		}
+		
 	
 	DatagramSocket socket;
 
@@ -84,7 +69,7 @@ public class Server {
 	        //See if the packet holds the right command (message)
 	        String message = new String(packet.getData()).trim();
 	        if (message.equals("DISCOVER_FUIFSERVER_REQUEST")) {
-	          byte[] sendData = "DISCOVER_FUIFSERVER_RESPONSE".getBytes();
+	          byte[] sendData = "DISCOVER_FUIFSERVER_RESPONSE - ".concat(GreeterGUI.nameServer.getText()).getBytes();
 
 	          //Send a response
 	          DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, packet.getAddress(), packet.getPort());
@@ -97,18 +82,24 @@ public class Server {
 	      Logger.getLogger(DiscoveryThread.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	  }
+	  }
 	
-	public void start() {
+	public void start(String serverName) {
 		keepGoing = true;
 		/* create socket server and wait for connection requests */
 		try 
 		{
 			// the socket used by the server
 			ServerSocket serverSocket = new ServerSocket(port);
+			
+			// listen for discovery broadcasts
+			Thread discoveryThread = new Thread(DiscoveryThread.getInstance());
+		    discoveryThread.start();
+		    
 
 			// infinite loop to wait for connections
 			while(keepGoing) 
-			{
+			{    
 				// format message saying we are waiting
 				display("Server waiting for Clients on port " + port + ".");
 				
@@ -164,10 +155,7 @@ public class Server {
 	 */
 	private void display(String msg) {
 		String time = sdf.format(new Date()) + " " + msg;
-		if(sg == null)
-			System.out.println(time);
-		else
-			sg.appendEvent(time + "\n");
+		System.out.println(time);
 	}
 	/*
 	 *  to broadcast a message to all Clients
@@ -177,10 +165,7 @@ public class Server {
 		String time = sdf.format(new Date());
 		String messageLf = time + " " + message + "\n";
 		// display message on console or GUI
-		if(sg == null)
-			System.out.print(messageLf);
-		else
-			sg.appendRoom(messageLf);     // append in the room window
+		System.out.print(messageLf);
 		
 		// we loop in reverse order in case we would have to remove a Client
 		// because it has disconnected
@@ -234,8 +219,8 @@ public class Server {
 				
 		}
 		// create a server object and start it
-		Server server = new Server(portNumber);
-		server.start();
+		Server server = new Server(portNumber, serverName);
+		server.start(serverName);
 		// listen for udp discovery broadcasts
 		Thread discoveryThread = new Thread(DiscoveryThread.getInstance());
 	    discoveryThread.start();
@@ -299,7 +284,7 @@ public class Server {
 				catch(ClassNotFoundException e2) {
 					break;
 				}
-				// the messaage part of the ChatMessage
+				// the message part of the ChatMessage
 				String message = cm.getMessage();
 
 				// Switch on the type of message receive
@@ -314,7 +299,7 @@ public class Server {
 					break;
 				case ChatMessage.WHOISIN:
 					writeMsg("List of the users connected at " + sdf.format(new Date()) + "\n");
-					// scan al the users connected
+					// scan all the users connected
 					for(int i = 0; i < al.size(); ++i) {
 						ClientThread ct = al.get(i);
 						writeMsg((i+1) + ") " + ct.username + " since " + ct.date);
