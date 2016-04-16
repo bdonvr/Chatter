@@ -154,7 +154,7 @@ public class Client  {
 	 */
 	public static void main(String[] args) {
 		// default values
-		int portNumber = 1500;
+		int portNumber = 5242;
 		String serverAddress = "localhost";
 		String userName = "Anonymous";
 
@@ -236,7 +236,7 @@ public class Client  {
 					}
 				}
 				catch(IOException e) {
-					display("Server has close the connection: " + e);
+					display("Connection to the server was lost.");
 					if(cg != null) 
 						cg.connectionFailed();
 					break;

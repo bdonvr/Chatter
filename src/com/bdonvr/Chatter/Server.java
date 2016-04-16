@@ -256,6 +256,7 @@ public class Server {
 				// read the username
 				username = (String) sInput.readObject();
 				display(username + " just connected.");
+				broadcast(username + " has joined the chat.");
 			}
 			catch (IOException e) {
 				display("Exception creating new Input/output Streams: " + e);
@@ -295,6 +296,7 @@ public class Server {
 					break;
 				case ChatMessage.LOGOUT:
 					display(username + " disconnected with a LOGOUT message.");
+					broadcast(username + " logged out.");
 					keepGoing = false;
 					break;
 				case ChatMessage.WHOISIN:

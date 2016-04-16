@@ -21,6 +21,8 @@ public class ClientGUI extends JFrame implements ActionListener {
 	private JButton login, logout, whoIsIn;
 	// for the chat room
 	private JTextArea ta;
+	// Users connected
+	private JList uc;
 	// if it is for connection
 	private boolean connected;
 	// the Client object
@@ -28,6 +30,8 @@ public class ClientGUI extends JFrame implements ActionListener {
 	// the default port number
 	private int defaultPort;
 	private String defaultHost;
+	public DefaultListModel servers = new DefaultListModel();
+	public String username;
 
 	// Constructor connection receiving a socket number
 	ClientGUI(String host, int port) {
@@ -37,7 +41,7 @@ public class ClientGUI extends JFrame implements ActionListener {
 		defaultHost = host;
 		
 		// The NorthPanel with:
-		JPanel northPanel = new JPanel(new GridLayout(2,1));
+		JPanel northPanel = new JPanel(new GridLayout(2,2));
 		// the server name anmd the port number
 		JPanel serverAndPort = new JPanel(new GridLayout(1,1));
 		// the two JTextField with default value for server address and port number
@@ -101,7 +105,7 @@ public class ClientGUI extends JFrame implements ActionListener {
 		logout.setEnabled(false);
 		whoIsIn.setEnabled(false);
 		label.setText("Enter your username below");
-		tf.setText("Anonymous");
+		tf.setText(username);
 		// reset port number and host name as a construction time
 		tfPort.setText("" + defaultPort);
 		tfServer.setText(defaultHost);
@@ -141,6 +145,7 @@ public class ClientGUI extends JFrame implements ActionListener {
 		if(o == login) {
 			// ok it is a connection request
 			String username = tf.getText().trim();
+			this.username = username;
 			// empty username ignore it
 			if(username.length() == 0)
 				return;
