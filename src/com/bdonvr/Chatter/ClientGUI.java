@@ -42,7 +42,7 @@ public class ClientGUI extends JFrame implements ActionListener {
 		
 		// The NorthPanel with:
 		JPanel northPanel = new JPanel(new GridLayout(2,2));
-		// the server name anmd the port number
+		// the server name and the port number
 		JPanel serverAndPort = new JPanel(new GridLayout(1,1));
 		// the two JTextField with default value for server address and port number
 		tfServer = new JTextField(host);
